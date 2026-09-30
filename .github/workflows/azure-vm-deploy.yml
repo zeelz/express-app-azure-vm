@@ -15,7 +15,7 @@ jobs:
         apt-get install -y openssh-client && apt-get clean
 
         echo "ssh-keyscan to known_hosts"
-        ssh-keyscan -H "${{ secrets.AZURE_VM_HOST }}" >> /tmp/known_hosts
+        # ssh-keyscan -H "${{ secrets.AZURE_VM_HOST }}" >> /tmp/known_hosts
         mkdir -p ~/.ssh
         echo "${{ secrets.AZURE_VM_SSH_KEY }}" > ~/.ssh/id_rsa
         chmod 400 ~/.ssh/id_rsa
