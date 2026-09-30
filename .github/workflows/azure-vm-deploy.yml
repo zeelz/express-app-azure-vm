@@ -10,20 +10,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Deploy via SSH
-      run: |
-        apt-get install -y openssh-client && apt-get clean
+    - name: Azure login
+      uses: azure/login@v2
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-        echo "ssh-keyscan to known_hosts"
-        # ssh-keyscan -H "${{ secrets.AZURE_VM_HOST }}" >> /tmp/known_hosts
-        mkdir -p ~/.ssh
-        echo "${{ secrets.AZURE_VM_SSH_KEY }}" > ~/.ssh/id_rsa
-        chmod 400 ~/.ssh/id_rsa
-
-        ssh -o StrictHostKeyChecking=no -i "${{ secrets.AZURE_VM_SSH_KEY }}" "${{ secrets.AZURE_VM_USERNAME }}@${{ secrets.AZURE_VM_HOST }}" " &&
-
-        docker stop express-containerized || true &&
-        docker rm express-containerized || true &&
-        docker pull zeelz/express-containerized:${{ vars.IMAGE_TAG }} &&
-        docker run -d -p 3000:3000 --name express-containerized --platform linux/amd64 -e "DB_USER=${{ vars.DB_USER }}" -e "DB_HOST=${{ vars.DB_HOST }}" -e "DB_NAME=postgres" -e "DB_PORT=${{ vars.DB_PORT }}" zeelz/express-containerized:${{ vars.IMAGE_TAG }} &&
-        "
+    - name: Azure CLI Setup
+      uses: azure/CLI@v2
+      with:
+        inlineScript:
+          az account show
